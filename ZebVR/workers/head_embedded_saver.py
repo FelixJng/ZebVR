@@ -30,10 +30,13 @@ class HeadEmbeddedSaver(WorkerNode):
             'index',
             'timestamp',
             'identity',
-
             'latency_ms',
             'est_x',
             'est_y',
+            'pc1_x',
+            'pc1_y',
+            'pc2_x',
+            'pc2_y',
             'est_theta',
             'strength',
             'turning_strength',
@@ -61,7 +64,7 @@ class HeadEmbeddedSaver(WorkerNode):
         fish_centroid = np.zeros((2,), dtype=float)
         fish_caudorostral_axis = np.zeros((2,), dtype=float)
         fish_mediolateral_axis = np.zeros((2,), dtype=float)
-        skeleton_interp = np.zeros((self.num_tail_points_interp,2), dtype=float)
+        # skeleton_interp = np.zeros((self.num_tail_points_interp,2), dtype=float)
 
         try:
 
@@ -69,6 +72,7 @@ class HeadEmbeddedSaver(WorkerNode):
             body_axes = data['tracking']['body']['body_axes_global']
             fish_caudorostral_axis[:] = body_axes[:,0]
             fish_mediolateral_axis[:] = body_axes[:,1] 
+            
 
         except KeyError as err:
             print(f'KeyError: {err}')
