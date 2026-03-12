@@ -27,7 +27,7 @@ def set_realtime_priority(priority):
 
 def run_vr_file(vr_file, *args) -> None:
 
-    from .dags import open_loop, closed_loop, video_recording, tracking
+    from .dags import open_loop, closed_loop, head_embedded, video_recording, tracking
     from .utils import append_timestamp_to_filename
 
     with open(vr_file, 'rb') as fp:
@@ -50,6 +50,8 @@ def run_vr_file(vr_file, *args) -> None:
         dag, worker_logger, queue_logger = video_recording(settings)
     elif settings['main']['tracking']:
         dag, worker_logger, queue_logger = tracking(settings)
+    elif settings['main']['head_embedded']:
+        dag, worker_logger, queue_logger = head_embedded(settings)
 
     p_worker_logger = Process(target=worker_logger.run)
     p_queue_logger = Process(target=queue_logger.run)
