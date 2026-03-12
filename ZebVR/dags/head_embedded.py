@@ -8,6 +8,8 @@ from geometry import AffineTransform2D
 from tracker import SingleFishOverlay_opencv
 from head_embedded import SingleFishHeadEmbedded 
 from ..workers import (
+    HeadEmbeddedWorker,
+    HeadEmbeddedSaver,
     CropWorker, 
     AudioStimWorker,
     CameraWorker, 

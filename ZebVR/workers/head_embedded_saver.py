@@ -30,6 +30,7 @@ class HeadEmbeddedSaver(WorkerNode):
             'index',
             'timestamp',
             'identity',
+
             'latency_ms',
             'est_x',
             'est_y',
@@ -50,31 +51,69 @@ class HeadEmbeddedSaver(WorkerNode):
             self.fd.close()
 
     def process_data(self, data):
-
+        
         if self.fd is None:
             return
         
-        if data in None:
+        if data is None:
             return
+
+        fish_centroid = np.zeros((2,), dtype=float)
+        fish_caudorostral_axis = np.zeros((2,), dtype=float)
+        fish_mediolateral_axis = np.zeros((2,), dtype=float)
+        skeleton_interp = np.zeros((self.num_tail_points_interp,2), dtype=float)
+
+        try:
+
+            fish_centroid[:] = data['tracking']['body']['centroid_global']
+            body_axes = data['tracking']['body']['body_axes_global']
+            fish_caudorostral_axis[:] = body_axes[:,0]
+            fish_mediolateral_axis[:] = body_axes[:,1] 
+
+        except KeyError as err:
+            print(f'KeyError: {err}')
+            return None 
         
-        # FILL VALUES IN HERE
+        except TypeError as err:
+            print(f'TypeError: {err}')
+            return None
+        
+        except ValueError as err:
+            print(f'ValueError: {err}')
+            return None
 
-    # except KeyError as err:
-    #     print(f'KeyError: {err}')
-    #     return None 
-    
-    # except TypeError as err:
-    #     print(f'TypeError: {err}')
-    #     return None
-    
-    # except ValueError as err:
-    #     print(f'ValueError: {err}')
-    #     return None
         latency = 1e-6*(get_time_ns() - data['timestamp'])
+        #print(f"frame {data['index']}, fish {data['identity']}: latency {latency}")
 
-        # WRITE ROW HERE
+        row = (
+            f"{data['index']}",
+            f"{data['timestamp']}",
+            f"{data['identity']}",
+            f"{latency}",
+            f"{fish_centroid[0]}",
+            f"{fish_centroid[1]}",
+            f"{fish_caudorostral_axis[0]}",
+            f"{fish_caudorostral_axis[1]}",
+            f"{fish_mediolateral_axis[0]}",
+            f"{fish_mediolateral_axis[1]}",
+            f"{left_eye_centroid[0]}",
+            f"{left_eye_centroid[1]}",
+            f"{left_eye_angle}",
+            f"{right_eye_centroid[0]}",
+            f"{right_eye_centroid[1]}",
+            f"{right_eye_angle}",
+        ) \
+        + tuple(f"{skeleton_interp[i,0]}" for i in range(self.num_tail_points_interp)) \
+        + tuple(f"{skeleton_interp[i,1]}" for i in range(self.num_tail_points_interp)) 
 
+        self.fd.write(','.join(row) + '\n')
 
-
+        res = {
+            'frame': data['index'],
+            'fish_id': data['identity'],
+            'latency': latency
+        }
+        return res
+        
     def process_metadata(self, metadata) -> None:
         pass
