@@ -72,7 +72,12 @@ class HeadEmbeddedSaver(WorkerNode):
             body_axes = data['tracking']['body']['body_axes_global']
             fish_caudorostral_axis[:] = body_axes[:,0]
             fish_mediolateral_axis[:] = body_axes[:,1] 
-            
+            est_theta = data['tracking']['body']['est_theta']
+            strength = data['tracking']['body']['strength']
+            turning_strength = data['tracking']['body']['turning_strength']
+            v_feedback_now_pix = data['tracking']['body']['v_feedback_now_pix']
+            omega_feedback_now_rad = data['tracking']['body']['omega_feedback_now_rad']
+            tail_points_transformed = data['tracking']['body']['tail_points_transformed']
 
         except KeyError as err:
             print(f'KeyError: {err}')
@@ -100,15 +105,14 @@ class HeadEmbeddedSaver(WorkerNode):
             f"{fish_caudorostral_axis[1]}",
             f"{fish_mediolateral_axis[0]}",
             f"{fish_mediolateral_axis[1]}",
-            f"{left_eye_centroid[0]}",
-            f"{left_eye_centroid[1]}",
-            f"{left_eye_angle}",
-            f"{right_eye_centroid[0]}",
-            f"{right_eye_centroid[1]}",
-            f"{right_eye_angle}",
+            f"{est_theta}",
+            f"{strength}",
+            f"{turning_strength}",
+            f"{v_feedback_now_pix}",
+            f"{omega_feedback_now_rad}",
         ) \
-        + tuple(f"{skeleton_interp[i,0]}" for i in range(self.num_tail_points_interp)) \
-        + tuple(f"{skeleton_interp[i,1]}" for i in range(self.num_tail_points_interp)) 
+        + tuple(f"{tail_points_transformed[i,0]}" for i in range(self.num_tail_points_interp)) \
+        + tuple(f"{tail_points_transformed[i,1]}" for i in range(self.num_tail_points_interp)) 
 
         self.fd.write(','.join(row) + '\n')
 
