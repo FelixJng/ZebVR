@@ -88,9 +88,12 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
     ))
 
     queue_crop_to_tracker = []
-    queue_tracking_to_stim = []
+    # queue_tracking_to_stim = []
     queue_tracking_to_overlay = []
     queue_tracking_to_saver = []
+    queue_tracking_to_head_embedded = []
+    queue_head_embedded_to_saver = []
+    queue_head_embedded_to_stim = []
 
     for i in range(settings['identity']['n_animals']):
 
@@ -103,11 +106,35 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
                             ))
         )
 
-        queue_tracking_to_stim.append(
+        # queue_tracking_to_stim.append(
+        #     MonitoredQueue(ModifiableRingBuffer(
+        #         num_bytes = 200*1024**2,
+        #         logger = queue_logger,
+        #         name = 'tracker_to_stim',
+        #                     ))
+        # )
+        queue_tracking_to_head_embedded.append(
+            MonitoredQueue(ModifiableRingBuffer(
+                num_bytes = DEFAULT_QUEUE_SIZE_MB*1024**2,
+                #copy=False, # you probably don't need to copy if processing is fast enough
+                logger = queue_logger,
+                name = 'tracking_to_head_embedded',
+                            ))
+        )
+
+        queue_head_embedded_to_saver.append(
             MonitoredQueue(ModifiableRingBuffer(
                 num_bytes = 200*1024**2,
                 logger = queue_logger,
-                name = 'tracker_to_stim',
+                name = 'head_embedded_to_saver',
+                            ))
+        )
+
+        queue_head_embedded_to_stim.append(
+            MonitoredQueue(ModifiableRingBuffer(
+                num_bytes = 200*1024**2,
+                logger = queue_logger,
+                name = 'head_embedded_to_stim',
                             ))
         )
 
@@ -216,11 +243,14 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
         queue_converter_to_saver: 'converted video recording',
         queue_trigger_metadata: 'tracker to protocol',
     }
-    queues.update({q: f'tracking to stim {n}' for n,q in enumerate(queue_tracking_to_stim)})
+    # queues.update({q: f'tracking to stim {n}' for n,q in enumerate(queue_tracking_to_stim)})
     queues.update({q: f'crop to tracker {n}' for n,q in enumerate(queue_crop_to_tracker)})
     queues.update({q: f'tracking to overlay {n}' for n,q in enumerate(queue_tracking_to_overlay)})
     queues.update({q: f'tracking to saver {n}' for n,q in enumerate(queue_tracking_to_saver)})
-    
+    queues.update({q: f'tracking to head_embedded {n}' for n,q in enumerate(queue_tracking_to_head_embedded)})
+    queues.update({q: f'head_embedded to saver {n}' for n,q in enumerate(queue_head_embedded_to_saver)})
+    queues.update({q: f'head_embedded to stim {n}' for n,q in enumerate(queue_head_embedded_to_stim)})
+
     queue_monitor_worker = QueueMonitor(
         queues = queues,
         name = 'queue_monitor',
@@ -258,7 +288,37 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
         send_data_strategy = send_strategy.BROADCAST,
         profile = PROFILE
     )
-        
+
+    # head embedded -----------------------------------------
+    
+    head_embedded_worker_list = []
+    for i in range(settings['identity']['n_animals']):
+        head_embedded_worker_list.append(
+            HeadEmbeddedWorker(
+                # head_embedded = SingleFishHeadEmbedded(), 
+                # state = HeadEmbeddedState(),
+                # n_tracker_workers = settings['identity']['n_animals'],
+                name = f'head_embedded_{i}', 
+                logger = worker_logger, 
+                logger_queues = queue_logger,
+                log_level = Logger.ERROR,
+                send_data_strategy = send_strategy.BROADCAST, 
+                #receive_metadata_strategy = receive_strategy.POLL,
+                receive_data_timeout = 1.0, 
+                profile = PROFILE
+            )
+        )
+
+    head_embedded_saver_worker = HeadEmbeddedSaver(
+        # filename = ['settings']['tracking']['csv_filename'],
+        # num_tail_points_interp = settings['settings']['tracking']['n_tail_pts_interp'],
+        name = 'head_embedded_saver',
+        logger = worker_logger, 
+        logger_queues = queue_logger,
+        log_level = Logger.ERROR,
+        receive_data_timeout = 1.0,
+        )
+            
     # tracking --------------------------------------------------
     tracker = tracker_from_json(
         filename = settings['settings']['tracking']['tracker_settings_file'],
@@ -491,11 +551,31 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
             name = f'cropper_output_{i}'
         )
 
+        # dag.connect_data(
+        #     sender = tracker_worker_list[i], 
+        #     receiver = stim_worker, 
+        #     queue = queue_tracking_to_stim[i], 
+        #     name = f'tracker_output_stim'
+        # )
         dag.connect_data(
             sender = tracker_worker_list[i], 
+            receiver = head_embedded_worker_list[i], 
+            queue = queue_tracking_to_head_embedded[i], 
+            name = f'tracker_to_head_embedded_{i}'
+        )
+
+        dag.connect_data(
+            sender = head_embedded_worker_list[i], 
+            receiver = head_embedded_saver_worker, 
+            queue = queue_head_embedded_to_saver[i], 
+            name = f'head_embedded_to_saver_{i}'
+        )
+
+        dag.connect_data(
+            sender = head_embedded_worker_list[i], 
             receiver = stim_worker, 
-            queue = queue_tracking_to_stim[i], 
-            name = f'tracker_output_stim'
+            queue = queue_head_embedded_to_stim[i], 
+            name = f'head_embedded_to_stim_{i}'
         )
 
         dag.connect_data(
