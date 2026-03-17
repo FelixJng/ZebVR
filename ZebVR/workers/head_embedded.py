@@ -29,8 +29,21 @@ class HeadEmbeddedWorker(WorkerNode):
         print("in HE worker")
         if data is None:
             return None
-        head_embedded, self.state = self.head_embedded.process(data['tracking']['tail']['image_processed'], self.state)
-
+        try:
+            fields = data['tracking'].dtype.names
+            print(fields)
+            head_embedded, self.state = self.head_embedded.process(data['tracking']['tail']['image_processed'], self.state)
+        except KeyError as err:
+            print(f'KeyError: {err}')
+            return None 
+        
+        except TypeError as err:
+            print(f'TypeError: {err}')
+            return None
+        
+        except ValueError as err:
+            print(f'ValueError: {err}')
+            return None
         msg = np.array(
             (data['index'], data['timestamp'], head_embedded, data['origin'], data['shape'], data['identity']),
             dtype=np.dtype([
@@ -50,7 +63,7 @@ class HeadEmbeddedWorker(WorkerNode):
         return res
     
 
-    def process_meta_data(self, meta_data) -> Any:
+    def process_metadata(self, meta_data) -> Any:
         pass
 
 

@@ -812,7 +812,6 @@ class MainGui(QMainWindow):
         
         self.dag, self.worker_logger, self.queue_logger = head_embedded(self.settings)
 
-
         self.p_worker_logger = Process(target=self.worker_logger.run)
         self.p_queue_logger = Process(target=self.queue_logger.run)
 

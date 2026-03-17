@@ -289,6 +289,8 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
     )
 
     # head embedded -----------------------------------------
+
+    print(40*'=' + ' 1')
     
     head_embedded_worker_list = []
     for i in range(settings['identity']['n_animals']):
@@ -307,6 +309,8 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
                 profile = PROFILE
             )
         )
+
+    print(40*'=' + ' 2')
 
     head_embedded_saver_worker = HeadEmbeddedSaver(
         # filename = ['settings']['tracking']['csv_filename'],
@@ -475,6 +479,9 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
     )
 
     # connect DAG -----------------------------------------------------------------------
+
+    print(40*'=' + ' 3')
+
     # data
     dag.connect_data(
         sender = camera_worker, 
