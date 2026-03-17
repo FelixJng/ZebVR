@@ -55,11 +55,14 @@ class HeadEmbeddedSaver(WorkerNode):
 
     def process_data(self, data):
         
+        print("in HE saver")
+
         if self.fd is None:
             return
         
         if data is None:
             return
+        
 
         fish_centroid = np.zeros((2,), dtype=float)
         fish_caudorostral_axis = np.zeros((2,), dtype=float)

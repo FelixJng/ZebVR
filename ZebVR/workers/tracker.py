@@ -51,7 +51,6 @@ class TrackerWorker(WorkerNode):
         self.current_tracking = None
 
     def process_data(self, data: NDArray) -> Dict:
-
         if data is None:
             return None
 

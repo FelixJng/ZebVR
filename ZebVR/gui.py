@@ -50,7 +50,7 @@ from .widgets import (
     DaqWidget
 )
 from .utils import append_timestamp_to_filename, serialize
-from .dags import closed_loop, open_loop, video_recording, tracking
+from .dags import closed_loop, open_loop, video_recording, tracking, head_embedded
 
 from enum import Enum
 
@@ -795,20 +795,23 @@ class MainGui(QMainWindow):
         filename = append_timestamp_to_filename(filename)       
         self.serialize_to_json(filename)
 
-        if self.open_loop_button.isChecked():
-            self.dag, self.worker_logger, self.queue_logger = open_loop(self.settings)
+        # if self.open_loop_button.isChecked():
+        #     self.dag, self.worker_logger, self.queue_logger = open_loop(self.settings)
 
-        elif self.video_recording_button.isChecked():
-            self.dag, self.worker_logger, self.queue_logger = video_recording(self.settings)
+        # elif self.video_recording_button.isChecked():
+        #     self.dag, self.worker_logger, self.queue_logger = video_recording(self.settings)
 
-        elif self.tracking_button.isChecked():
-            self.dag, self.worker_logger, self.queue_logger = tracking(self.settings)
+        # elif self.tracking_button.isChecked():
+        #     self.dag, self.worker_logger, self.queue_logger = tracking(self.settings)
 
-        elif self.close_loop_button.isChecked():
-            self.dag, self.worker_logger, self.queue_logger = closed_loop(self.settings)
+        # elif self.close_loop_button.isChecked():
+        #     self.dag, self.worker_logger, self.queue_logger = closed_loop(self.settings)
         
-        else:
-            raise RuntimeError()
+        # else:
+        #     raise RuntimeError()
+        
+        self.dag, self.worker_logger, self.queue_logger = head_embedded(self.settings)
+
 
         self.p_worker_logger = Process(target=self.worker_logger.run)
         self.p_queue_logger = Process(target=self.queue_logger.run)

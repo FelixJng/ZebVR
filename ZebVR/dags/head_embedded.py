@@ -6,7 +6,6 @@ from ipc_tools import MonitoredQueue, ModifiableRingBuffer, QueueMP
 from dagline import ProcessingDAG, receive_strategy, send_strategy
 from geometry import AffineTransform2D
 from tracker import SingleFishOverlay_opencv
-from head_embedded import SingleFishHeadEmbedded 
 from ..workers import (
     HeadEmbeddedWorker,
     HeadEmbeddedSaver,
@@ -683,5 +682,5 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
 
     if settings['temperature']['serial_port'] != '':
         dag.add_node(temperature_logger)
-
+    print("---------------------------          HE DAGS======================")
     return (dag, worker_logger, queue_logger)

@@ -8,8 +8,7 @@ from numpy.typing import NDArray
 
 ENABLE_KALMAN = False
 
-from head_embedded.core import HeadEmbeddedState
-from head_embedded.single_fish.single_fish_head_embedded import SingleFishHeadEmbedded
+from head_embedded import HeadEmbeddedState, SingleFishHeadEmbedded
 
 class HeadEmbeddedWorker(WorkerNode):
 
@@ -27,7 +26,7 @@ class HeadEmbeddedWorker(WorkerNode):
         self.current_estimator = None
 
     def process_data(self, data: NDArray) -> Dict:
-
+        print("in HE worker")
         if data is None:
             return None
         head_embedded, self.state = self.head_embedded.process(data['tracking']['tail']['image_processed'], self.state)

@@ -42,17 +42,17 @@ def run_vr_file(vr_file, *args) -> None:
     with open(filename,'w') as fp:
         pprint.pprint(settings, fp) 
 
-    if settings['main']['open_loop']:
-        dag, worker_logger, queue_logger = open_loop(settings)
-    elif settings['main']['close_loop']:
-        dag, worker_logger, queue_logger = closed_loop(settings)
-    elif settings['main']['video_recording']:
-        dag, worker_logger, queue_logger = video_recording(settings)
-    elif settings['main']['tracking']:
-        dag, worker_logger, queue_logger = tracking(settings)
-    elif settings['main']['head_embedded']:
-        dag, worker_logger, queue_logger = head_embedded(settings)
-
+    # if settings['main']['open_loop']:
+    #     dag, worker_logger, queue_logger = open_loop(settings)
+    # elif settings['main']['close_loop']:
+    #     dag, worker_logger, queue_logger = closed_loop(settings)
+    # elif settings['main']['video_recording']:
+    #     dag, worker_logger, queue_logger = video_recording(settings)
+    # elif settings['main']['tracking']:
+    #     dag, worker_logger, queue_logger = tracking(settings)
+    # elif settings['main']['head_embedded']:
+    #     dag, worker_logger, queue_logger = head_embedded(settings)
+    dag, worker_logger, queue_logger = head_embedded(settings)
     p_worker_logger = Process(target=worker_logger.run)
     p_queue_logger = Process(target=queue_logger.run)
     p_worker_logger.start()

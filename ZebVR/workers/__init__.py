@@ -15,3 +15,5 @@ from .audio_stim import AudioStimWorker
 from .daq import DAQ_Worker
 from .latency_display import LatencyDisplay
 from .stim_saver import StimSaver
+from .head_embedded import HeadEmbeddedWorker
+from .head_embedded_saver import HeadEmbeddedSaver
