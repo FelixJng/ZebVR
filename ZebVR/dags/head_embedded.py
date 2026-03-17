@@ -561,21 +561,21 @@ def head_embedded(settings: Dict, dag: Optional[ProcessingDAG] = None) -> Tuple[
             sender = tracker_worker_list[i], 
             receiver = head_embedded_worker_list[i], 
             queue = queue_tracking_to_head_embedded[i], 
-            name = f'tracker_to_head_embedded_{i}'
+            name = f'tracker_output_head_embedded'
         )
 
         dag.connect_data(
             sender = head_embedded_worker_list[i], 
             receiver = head_embedded_saver_worker, 
             queue = queue_head_embedded_to_saver[i], 
-            name = f'head_embedded_to_saver_{i}'
+            name = f'head_embedded_output_saver'
         )
 
         dag.connect_data(
             sender = head_embedded_worker_list[i], 
             receiver = stim_worker, 
             queue = queue_head_embedded_to_stim[i], 
-            name = f'head_embedded_to_stim_{i}'
+            name = f'head_embedded_output_stim'
         )
 
         dag.connect_data(

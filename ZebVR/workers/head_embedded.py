@@ -30,8 +30,7 @@ class HeadEmbeddedWorker(WorkerNode):
 
         if data is None:
             return None
-        
-        head_embedded, self.state = self.head_embedded.process(data['image'], self.state)
+        head_embedded, self.state = self.head_embedded.process(data['tracking']['tail']['image_processed'], self.state)
 
         msg = np.array(
             (data['index'], data['timestamp'], head_embedded, data['origin'], data['shape'], data['identity']),
