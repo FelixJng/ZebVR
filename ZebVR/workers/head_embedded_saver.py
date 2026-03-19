@@ -78,8 +78,8 @@ class HeadEmbeddedSaver(WorkerNode):
             est_theta = data['tracking']['body']['est_theta']
             strength = data['tracking']['body']['strength']
             turning_strength = data['tracking']['body']['turning_strength']
-            v_feedback_now_pix = data['tracking']['body']['v_feedback_now_pix']
-            omega_feedback_now_rad = data['tracking']['body']['omega_feedback_now_rad']
+            v_feedback_pix = data['tracking']['body']['v_feedback_pix']
+            omega_feedback_rad = data['tracking']['body']['omega_feedback_rad']
             tail_points_transformed = data['tracking']['body']['tail_points_transformed']
 
         except KeyError as err:
@@ -111,8 +111,8 @@ class HeadEmbeddedSaver(WorkerNode):
             f"{est_theta}",
             f"{strength}",
             f"{turning_strength}",
-            f"{v_feedback_now_pix}",
-            f"{omega_feedback_now_rad}",
+            f"{v_feedback_pix}",
+            f"{omega_feedback_rad}",
         ) \
         + tuple(f"{tail_points_transformed[i,0]}" for i in range(self.num_tail_points_interp)) \
         + tuple(f"{tail_points_transformed[i,1]}" for i in range(self.num_tail_points_interp)) 

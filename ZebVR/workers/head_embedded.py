@@ -26,7 +26,6 @@ class HeadEmbeddedWorker(WorkerNode):
         self.current_estimator = None
 
     def process_data(self, data: NDArray) -> Dict:
-        print("in HE worker")
         if data is None:
             return None
         try:
@@ -42,7 +41,7 @@ class HeadEmbeddedWorker(WorkerNode):
             return None
         
         except ValueError as err:
-            print(f'ValueError: {err}')
+            print(f'ValueError -2: {err}')
             return None
         msg = np.array(
             (data['index'], data['timestamp'], head_embedded, data['origin'], data['shape'], data['identity']),
